@@ -33,7 +33,7 @@ const sendMailToUser = (userMail, token) => {
 };
 const sendMailToRecoveryPassword = async(userMail,token)=>{
     let info = await transporter.sendMail({
-    from: 'admin@vet.com',
+    from: 'admin@ilusiones.com',
     to: userMail,
     subject: "Correo para reestablecer tu contraseña",
     html: `
@@ -47,7 +47,34 @@ const sendMailToRecoveryPassword = async(userMail,token)=>{
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
 }
 
+// send mail with defined transport object
+const sendMailToNino = async(userMail, password) => {
+    console.log("Email del destinatario:", userMail);
+    try {
+        let info = await transporter.sendMail({
+            from: 'admin@ilusiones.com',
+            to: userMail,
+            subject: "Correo de bienvenida",
+            html: `
+                <h1>Centro infantil Valle de ilusiones 🏫</h1>
+                <hr>
+                <p>Contraseña de acceso: ${password}</p>
+                <a href='${process.env.URL_BACKEND}nino/login'>Clic para iniciar sesión</a>
+
+                <hr>
+                <footer>Dino te da la Bienvenida!</footer>
+            `
+        });
+        
+        console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+    } catch (error) {
+        console.error("Error al enviar el correo: ", error);
+    }
+}
+
+
 export {
     sendMailToUser,
-    sendMailToRecoveryPassword
+    sendMailToRecoveryPassword,
+    sendMailToNino
 }

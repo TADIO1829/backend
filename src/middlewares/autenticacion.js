@@ -1,20 +1,30 @@
-import jwt from 'jsonwebtoken'
-import Docentes from '../models/Docentes.js'
+import jwt from 'jsonwebtoken';
+import Docentes from '../models/Docentes.js';
+import Nino from '../models/Nino.js';
 
+const verificarAutenticacion = async (req, res, next) => {
+    if (!req.headers.authorization) {
+        return res.status(404).json({ msg: "Lo sentimos, debes proporcionar un token" });
+    }
 
-const verificarAutenticacion = async (req,res,next)=>{
-if(!req.headers.authorization) return res.status(404).json({msg:"Lo sentimos, debes proprocionar un token"})    
-    const {authorization} = req.headers
+    const { authorization } = req.headers;
+
     try {
-        const {id,rol} = jwt.verify(authorization.split(' ')[1],process.env.JWT_SECRET)
-        if (rol==="docente"){
-            req.docenteBDD = await Docentes.findById(id).lean().select("-password")
-            next()
+        const { id, rol } = jwt.verify(authorization.split(' ')[1], process.env.JWT_SECRET);
+
+        if (rol === "docente") {
+            req.docenteBDD = await Docentes.findById(id).lean().select("-password");
+            next();
+        } else if (rol === "nino") {
+            req.ninoBDD = await Nino.findById(id).lean().select("-password");
+            next();
+        } else {
+            return res.status(403).json({ msg: "Acceso denegado: rol no autorizado" });
         }
     } catch (error) {
-        const e = new Error("Formato del token no válido")
-        return res.status(404).json({msg:e.message})
+        const e = new Error("Formato del token no válido");
+        return res.status(404).json({ msg: e.message });
     }
-}
+};
 
-export default verificarAutenticacion
+export default verificarAutenticacion;
